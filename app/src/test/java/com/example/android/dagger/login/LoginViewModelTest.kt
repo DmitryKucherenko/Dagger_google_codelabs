@@ -18,12 +18,15 @@ package com.example.android.dagger.login
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.android.dagger.LiveDataTestUtil
+import com.example.android.dagger.settings.UserComponent
+import com.example.android.dagger.storage.FakeStorage
 import com.example.android.dagger.user.UserManager
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when` as whenever
@@ -38,8 +41,13 @@ class LoginViewModelTest {
 
     @Before
     fun setup() {
-        userManager = mock(UserManager::class.java)
-        viewModel = LoginViewModel(userManager)
+        // Return mock userComponent when calling the factory
+        val userComponentFactory = Mockito.mock(UserComponent.Factory::class.java)
+        val userComponent = Mockito.mock(UserComponent::class.java)
+        whenever(userComponentFactory.create()).thenReturn(userComponent)
+
+        val storage = FakeStorage()
+        userManager = UserManager(storage, userComponentFactory)
     }
 
     @Test
